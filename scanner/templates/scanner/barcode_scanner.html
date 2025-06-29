@@ -1,0 +1,305 @@
+{% extends 'scanner/base.html' %} {% block title %}Barcode Scanner - {{
+schedule.subject.code }} {% endblock %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="fas fa-barcode me-2"></i>Barcode Scanner</h2>
+      <a
+        href="{% url 'attendance_management' schedule.id %}"
+        class="btn btn-outline-secondary"
+      >
+        <i class="fas fa-arrow-left me-2"></i>Back to Attendance
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <!-- Scanner Interface -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-camera me-2"></i>Scanner Interface
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label for="barcode_input" class="form-label"
+            >Scan Barcode or Enter Manually:</label
+          >
+          <form method="post" id="barcode_form">
+            {% csrf_token %}
+            <div class="input-group">
+              <input
+                type="text"
+                id="barcode_input"
+                name="barcode"
+                class="form-control form-control-lg"
+                placeholder="Scan barcode here..."
+                autocomplete="off"
+                autofocus
+              />
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Submit
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Session Status -->
+        <div
+          class="alert {% if session.is_active %}alert-success{% else %}alert-warning{% endif %}"
+        >
+          <i
+            class="fas {% if session.is_active %}fa-play{% else %}fa-pause{% endif %} me-2"
+          ></i>
+          <strong>Session Status:</strong>
+          {% if session.is_active %} Active - Ready to scan {% else %} Inactive
+          - Please start session first {% endif %}
+        </div>
+
+        <!-- Class Info -->
+        <div class="card bg-light">
+          <div class="card-body">
+            <h6 class="card-title">Class Information</h6>
+            <p class="mb-1">
+              <strong>Subject:</strong> 
+              {{ schedule.subject.code }} - {{ schedule.subject.name }}
+            </p>
+            <p class="mb-1"><strong>Room:</strong> {{ schedule.room.name }}</p>
+            <p class="mb-1">
+              <strong>Time:</strong> {{ schedule.start_time|time:"g:i A" }} - {{ schedule.end_time|time:"g:i A" }}
+            </p>
+            <p class="mb-0">
+              <strong>Date:</strong> {{ session.date|date:"F d, Y" }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <!-- Recent Scans -->
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Scans</h5>
+      </div>
+      <div class="card-body">
+        {% if recent_scans %}
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Student</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for scan in recent_scans %}
+              <tr>
+                <td>{{ scan.scan_time|time:"g:i A" }}</td>
+                <td>
+                  {% if scan.user %} {{ scan.user.get_full_name }} {% else %}
+                  <span class="text-muted">Unknown</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if scan.success %}
+                  <span class="badge bg-success">Success</span>
+                  {% else %}
+                  <span class="badge bg-danger">Failed</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <i class="fas fa-barcode fa-3x text-muted mb-3"></i>
+          <h6>No Recent Scans</h6>
+          <p class="text-muted">Start scanning to see recent activity</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card mt-3">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          {% if session.is_active %}
+          <form method="post" action="{% url 'toggle_session' schedule.id %}">
+            {% csrf_token %}
+            <button
+              type="submit"
+              name="action"
+              value="stop"
+              class="btn btn-danger"
+            >
+              <i class="fas fa-stop me-2"></i>Stop Session
+            </button>
+          </form>
+          {% else %}
+          <form method="post" action="{% url 'toggle_session' schedule.id %}">
+            {% csrf_token %}
+            <button
+              type="submit"
+              name="action"
+              value="start"
+              class="btn btn-success"
+            >
+              <i class="fas fa-play me-2"></i>Start Session
+            </button>
+          </form>
+          {% endif %}
+
+          <a
+            href="{% url 'attendance_management' schedule.id %}"
+            class="btn btn-outline-primary"
+          >
+            <i class="fas fa-clipboard-check me-2"></i>View Attendance
+          </a>
+
+          <button
+            type="button"
+            class="btn btn-outline-info"
+            onclick="clearBarcodeInput()"
+          >
+            <i class="fas fa-eraser me-2"></i>Clear Input
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scan Result Modal -->
+<div class="modal fade" id="scanResultModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Scan Result</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body" id="scanResultContent">
+        <!-- Content will be populated by JavaScript -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto-focus on barcode input
+  document.addEventListener("DOMContentLoaded", function () {
+    const barcodeInput = document.getElementById("barcode_input");
+    if (barcodeInput) {
+      barcodeInput.focus();
+    }
+  });
+
+  // Handle form submission
+  document
+    .getElementById("barcode_form")
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const barcode = document.getElementById("barcode_input").value.trim();
+      if (!barcode) {
+        alert("Please enter a barcode");
+        return;
+      }
+
+      // Submit form via AJAX
+      fetch(window.location.href, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
+            .value,
+        },
+        body: new URLSearchParams({
+          barcode: barcode,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          showScanResult(data);
+          if (data.success) {
+            document.getElementById("barcode_input").value = "";
+          }
+          document.getElementById("barcode_input").focus();
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          showScanResult({
+            success: false,
+            message: "An error occurred while processing the scan.",
+          });
+        });
+    });
+
+  function showScanResult(data) {
+    const modal = new bootstrap.Modal(
+      document.getElementById("scanResultModal")
+    );
+    const content = document.getElementById("scanResultContent");
+
+    if (data.success) {
+      content.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5 class="text-success">Scan Successful!</h5>
+                <p>${data.message}</p>
+                ${
+                  data.student_name
+                    ? `<p><strong>Student:</strong> ${data.student_name}</p>`
+                    : ""
+                }
+                ${
+                  data.status
+                    ? `<p><strong>Status:</strong> ${data.status}</p>`
+                    : ""
+                }
+            </div>
+        `;
+    } else {
+      content.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                <h5 class="text-danger">Scan Failed</h5>
+                <p>${data.message}</p>
+            </div>
+        `;
+    }
+
+    modal.show();
+  }
+
+  function clearBarcodeInput() {
+    document.getElementById("barcode_input").value = "";
+    document.getElementById("barcode_input").focus();
+  }
+
+  // Auto-refresh recent scans every 30 seconds
+  setInterval(function () {
+    location.reload();
+  }, 30000);
+</script>
+{% endblock %}

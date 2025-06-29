@@ -1,0 +1,391 @@
+{% extends 'scanner/base.html' %} {% block title %}
+Dashboard - Attendance Scanner {%endblock %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <h2 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
+  </div>
+</div>
+
+{% if user.user_type == 'student' %}
+<!-- Student Dashboard -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ total_schedules }}</div>
+      <div class="label">Total Classes</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ today_schedules|length }}</div>
+      <div class="label">Today's Classes</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ attendance_records|length }}</div>
+      <div class="label">Recent Records</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">
+        {% if attendance_records %} {{ attendance_records|slice:":10"|length }}
+        {% else %} 0 {% endif %}
+      </div>
+      <div class="label">This Week</div>
+    </div>
+  </div>
+</div>
+
+<!-- Today's Schedule -->
+{% if today_schedules %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="fas fa-calendar-day me-2"></i>Today's Schedule
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {% for schedule_data in today_schedules %}
+      <div class="col-md-6 col-lg-4 mb-3">
+        <div
+          class="card h-100 {% if schedule_data.is_current %}border-primary{% elif schedule_data.is_upcoming %}border-success{% endif %}"
+        >
+          <div class="card-body">
+            <h6 class="card-title">
+              {{ schedule_data.schedule.subject.code }} - {{
+              schedule_data.schedule.subject.name }}
+            </h6>
+            <p class="card-text">
+              <i class="fas fa-clock me-2"></i>
+              {{ schedule_data.schedule.start_time|time:"g:i A" }} - {{
+              schedule_data.schedule.end_time|time:"g:i A" }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-map-marker-alt me-2"></i>
+              {{ schedule_data.schedule.room.name }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-user-tie me-2"></i>
+              {{ schedule_data.schedule.professor.get_full_name }}
+            </p>
+
+            <!-- Status Badge -->
+            <span
+              class="status-badge status-{{ schedule_data.attendance.status }}"
+            >
+              {% if schedule_data.attendance.status == 'present' %}
+              <i class="fas fa-check me-1"></i>Present {% elif
+              schedule_data.attendance.status == 'absent' %}
+              <i class="fas fa-times me-1"></i>Absent {% elif
+              schedule_data.attendance.status == 'late' %}
+              <i class="fas fa-clock me-1"></i>Late {% else %}
+              <i class="fas fa-exclamation me-1"></i>Excused {% endif %}
+            </span>
+
+            <!-- Professor Session Status -->
+            {% if schedule_data.professor_session %} 
+            {% if schedule_data.professor_session.is_active %}
+            <div class="mt-2">
+              <span class="badge bg-success">
+                <i class="fas fa-play me-1"></i>Class Active
+              </span>
+            </div>
+            {% else %}
+            <div class="mt-2">
+              <span class="badge bg-secondary">
+                <i class="fas fa-pause me-1"></i>Class Inactive
+              </span>
+            </div>
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="card mb-4">
+  <div class="card-body text-center">
+    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+    <h5>No Classes Today</h5>
+    <p class="text-muted">You have no scheduled classes for today.</p>
+  </div>
+</div>
+{% endif %}
+
+<!-- Recent Attendance -->
+{% if attendance_records %}
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Attendance</h5>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Subject</th>
+            <th>Room</th>
+            <th>Time In</th>
+            <th>Time Out</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attendance in attendance_records %}
+          <tr>
+            <td>{{ attendance.date|date:"M d, Y" }}</td>
+            <td>{{ attendance.schedule.subject.code }}</td>
+            <td>{{ attendance.schedule.room.name }}</td>
+            <td>
+              {% if attendance.time_in %} {{ attendance.time_in|time:"g:i A" }}
+              {% else %} - {% endif %}
+            </td>
+            <td>
+              {% if attendance.time_out %} {{ attendance.time_out|time:"g:i A"
+              }} {% else %} - {% endif %}
+            </td>
+            <td>
+              <span class="status-badge status-{{ attendance.status }}">
+                {{ attendance.status|title }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %} {% elif user.user_type == 'professor' %}
+<!-- Professor Dashboard -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ total_schedules }}</div>
+      <div class="label">Total Classes</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ today_schedules|length }}</div>
+      <div class="label">Today's Classes</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">
+        {% for session in today_schedules %} {% if session.session.is_active %}
+        {{ forloop.counter }} {% endif %} {% endfor %}
+      </div>
+      <div class="label">Active Sessions</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">
+        {% for session in today_schedules %} {% if session.attendance_count %}
+        {{ session.attendance_count }} {% endif %} {% endfor %}
+      </div>
+      <div class="label">Students Present</div>
+    </div>
+  </div>
+</div>
+
+<!-- Today's Classes -->
+{% if today_schedules %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">
+      <i class="fas fa-calendar-day me-2"></i>Today's Classes
+    </h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      {% for session_data in today_schedules %}
+      <div class="col-md-6 col-lg-4 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h6 class="card-title">
+              {{ session_data.schedule.subject.code }} - {{
+              session_data.schedule.subject.name }}
+            </h6>
+            <p class="card-text">
+              <i class="fas fa-clock me-2"></i>
+              {{ session_data.schedule.start_time|time:"g:i A" }} - {{
+              session_data.schedule.end_time|time:"g:i A" }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-map-marker-alt me-2"></i>
+              {{ session_data.schedule.room.name }}
+            </p>
+            <p class="card-text">
+              <i class="fas fa-users me-2"></i>
+              {{ session_data.attendance_count }}/{{ session_data.total_students
+              }} students present
+            </p>
+
+            <!-- Session Status -->
+            {% if session_data.session.is_active %}
+            <div class="mb-2">
+              <span class="badge bg-success">
+                <i class="fas fa-play me-1"></i>Active Session
+              </span>
+            </div>
+            <div class="d-grid gap-2">
+              <a
+                href="{% url 'barcode_scanner' session_data.schedule.id %}"
+                class="btn btn-primary btn-sm"
+              >
+                <i class="fas fa-barcode me-1"></i>Open Scanner
+              </a>
+            </div>
+            {% else %}
+            <div class="mb-2">
+              <span class="badge bg-secondary">
+                <i class="fas fa-pause me-1"></i>Inactive
+              </span>
+            </div>
+            <div class="d-grid gap-2">
+              <a
+                href="{% url 'attendance_management' session_data.schedule.id %}"
+                class="btn btn-outline-primary btn-sm"
+              >
+                <i class="fas fa-clipboard-check me-1"></i>Manage Attendance
+              </a>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="card mb-4">
+  <div class="card-body text-center">
+    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+    <h5>No Classes Today</h5>
+    <p class="text-muted">You have no scheduled classes for today.</p>
+    <a href="{% url 'schedule_management' %}" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Create Schedule
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<!-- Quick Actions -->
+<div class="card">
+  <div class="card-header">
+    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <a
+          href="{% url 'schedule_management' %}"
+          class="btn btn-outline-primary w-100"
+        >
+          <i class="fas fa-calendar-alt me-2"></i>Manage Schedules
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="btn btn-outline-success w-100">
+          <i class="fas fa-file-export me-2"></i>Export Reports
+        </a>
+      </div>
+      <div class="col-md-4 mb-3">
+        <a href="#" class="btn btn-outline-info w-100">
+          <i class="fas fa-chart-bar me-2"></i>View Analytics
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- Admin Dashboard -->
+<div class="row mb-4">
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ total_users }}</div>
+      <div class="label">Total Users</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ total_schedules }}</div>
+      <div class="label">Total Schedules</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ total_rooms }}</div>
+      <div class="label">Total Rooms</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="dashboard-stats">
+      <div class="number">{{ total_subjects }}</div>
+      <div class="label">Total Subjects</div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Quick Actions -->
+<div class="row">
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>System Management</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="{% url 'manage_rooms' %}" class="btn btn-outline-primary">
+            <i class="fas fa-building me-2"></i>Manage Rooms
+          </a>
+          <a href="{% url 'manage_subjects' %}" class="btn btn-outline-success">
+            <i class="fas fa-book me-2"></i>Manage Subjects
+          </a>
+          <a
+            href="{% url 'manage_enrollments' %}"
+            class="btn btn-outline-warning"
+          >
+            <i class="fas fa-user-graduate me-2"></i>Manage Enrollments
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-line me-2"></i>Reports & Analytics
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="#" class="btn btn-outline-info">
+            <i class="fas fa-file-alt me-2"></i>Attendance Reports
+          </a>
+          <a href="#" class="btn btn-outline-secondary">
+            <i class="fas fa-chart-pie me-2"></i>System Analytics
+          </a>
+          <a href="#" class="btn btn-outline-dark">
+            <i class="fas fa-download me-2"></i>Export Data
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %}

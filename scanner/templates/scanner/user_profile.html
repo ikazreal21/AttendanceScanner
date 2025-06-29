@@ -1,0 +1,160 @@
+{% extends 'scanner/base.html' %} {% block title %} My Profile - Attendance
+Scanner {% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0"><i class="fas fa-user-circle me-2"></i>My Profile</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h5 class="text-primary mb-3">Account Information</h5>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Full Name</label>
+              <p class="form-control-plaintext">{{ user.get_full_name }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Username</label>
+              <p class="form-control-plaintext">{{ user.username }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Email</label>
+              <p class="form-control-plaintext">{{ user.email }}</p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">User Type</label>
+              <p class="form-control-plaintext">
+                <span class="badge bg-primary"
+                  >{{ user.get_user_type_display }}</span
+                >
+              </p>
+            </div>
+            {% if user.student_id %}
+            <div class="mb-3">
+              <label class="form-label fw-bold">Student ID</label>
+              <p class="form-control-plaintext">{{ user.student_id }}</p>
+            </div>
+            {% endif %} {% if user.phone %}
+            <div class="mb-3">
+              <label class="form-label fw-bold">Phone</label>
+              <p class="form-control-plaintext">{{ user.phone }}</p>
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <h5 class="text-success mb-3">Attendance Barcode</h5>
+            <div class="text-center">
+              <div class="card border-success">
+                <div class="card-body">
+                  <h6 class="card-title text-success">
+                    <i class="fas fa-barcode me-2"></i>Your Barcode
+                  </h6>
+                  <div class="barcode-display">
+                    <code class="fs-4 fw-bold text-dark"
+                      >{{ user.barcode }}</code
+                    >
+                  </div>
+                  <p class="text-muted mt-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Use this barcode for attendance scanning
+                  </p>
+                  <button
+                    class="btn btn-outline-primary btn-sm"
+                    onclick="copyBarcode()"
+                  >
+                    <i class="fas fa-copy me-1"></i>Copy Barcode
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <h6 class="text-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>Important Notes
+              </h6>
+              <ul class="list-unstyled">
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Keep your barcode safe and private
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  You can use this barcode for all your classes
+                </li>
+                <li class="mb-2">
+                  <i class="fas fa-check text-success me-2"></i>
+                  Contact admin if you need a new barcode
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <hr class="my-4" />
+
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="text-info">
+              <i class="fas fa-clock me-2"></i>Account Created
+            </h6>
+            <p class="text-muted">{{ user.date_joined|date:"F d, Y" }}</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-info">
+              <i class="fas fa-sign-in-alt me-2"></i>Last Login
+            </h6>
+            <p class="text-muted">
+              {{ user.last_login|date:"F d, Y g:i A"|default:"Never" }}
+            </p>
+          </div>
+        </div>
+
+        <div class="text-center mt-4">
+          <a href="{% url 'dashboard' %}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Back to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyBarcode() {
+    const barcode = "{{ user.barcode }}";
+    navigator.clipboard
+      .writeText(barcode)
+      .then(function () {
+        // Show success message
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+        button.classList.remove("btn-outline-primary");
+        button.classList.add("btn-success");
+
+        setTimeout(function () {
+          button.innerHTML = originalText;
+          button.classList.remove("btn-success");
+          button.classList.add("btn-outline-primary");
+        }, 2000);
+      })
+      .catch(function (err) {
+        console.error("Could not copy text: ", err);
+        alert("Could not copy barcode. Please copy manually: " + barcode);
+      });
+  }
+</script>
+
+<style>
+  .barcode-display {
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px 0;
+    font-family: "Courier New", monospace;
+  }
+</style>
+{% endblock %}

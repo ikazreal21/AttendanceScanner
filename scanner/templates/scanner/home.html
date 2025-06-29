@@ -1,0 +1,258 @@
+{% extends 'scanner/base.html' %} 
+{% block title %}
+Home - Attendance Scanner
+{% endblock %} {% block content %}
+<div class="row align-items-center min-vh-75">
+  <div class="col-lg-6">
+    <div class="hero-content">
+      <h1 class="display-4 fw-bold text-primary mb-4">
+        <i class="fas fa-qrcode me-3"></i>
+        Attendance Scanner
+      </h1>
+      <p class="lead text-secondary mb-4">
+        Streamline your educational institution's attendance tracking with our
+        modern barcode-based system. Efficient, accurate, and user-friendly
+        attendance management for students, professors, and administrators.
+      </p>
+
+      {% if not user.is_authenticated %}
+      <div class="d-flex gap-3 mb-5">
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+          <i class="fas fa-sign-in-alt me-2"></i>
+          Login
+        </a>
+        <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">
+          <i class="fas fa-user-plus me-2"></i>
+          Register
+        </a>
+      </div>
+      {% else %}
+      <div class="mb-5">
+        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">
+          <i class="fas fa-tachometer-alt me-2"></i>
+          Go to Dashboard
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="hero-image text-center">
+      <div class="card shadow-lg border-0">
+        <div class="card-body p-5">
+          <i
+            class="fas fa-qrcode text-primary"
+            style="font-size: 8rem; opacity: 0.1"
+          ></i>
+          <h3 class="mt-4 mb-3">Smart Attendance Tracking</h3>
+          <p class="text-muted">
+            Scan barcodes, track attendance, and generate reports with ease.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5 pt-5">
+  <div class="col-12">
+    <h2 class="text-center mb-5">Key Features</h2>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center p-4">
+        <div class="feature-icon mb-3">
+          <i class="fas fa-barcode text-primary" style="font-size: 3rem"></i>
+        </div>
+        <h5 class="card-title">Barcode Scanning</h5>
+        <p class="card-text text-muted">
+          Quick and accurate attendance recording using barcode technology. No
+          more manual roll calls or paper-based systems.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center p-4">
+        <div class="feature-icon mb-3">
+          <i class="fas fa-chart-line text-success" style="font-size: 3rem"></i>
+        </div>
+        <h5 class="card-title">Real-time Reports</h5>
+        <p class="card-text text-muted">
+          Generate comprehensive attendance reports instantly. Track patterns
+          and identify trends with detailed analytics.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body text-center p-4">
+        <div class="feature-icon mb-3">
+          <i class="fas fa-users text-warning" style="font-size: 3rem"></i>
+        </div>
+        <h5 class="card-title">Multi-User System</h5>
+        <p class="card-text text-muted">
+          Role-based access for students, professors, and administrators. Each
+          user type has tailored features and permissions.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Types Section -->
+<div class="row mt-5 pt-5">
+  <div class="col-12">
+    <h2 class="text-center mb-5">For Different User Types</h2>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-primary text-white text-center">
+        <i class="fas fa-user-graduate me-2"></i>
+        <h5 class="mb-0">Students</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            View personal schedule
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Track attendance history
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Display barcode for scanning
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Access attendance statistics
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-success text-white text-center">
+        <i class="fas fa-chalkboard-teacher me-2"></i>
+        <h5 class="mb-0">Professors</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Manage class schedules
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Start/stop attendance sessions
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Scan student barcodes
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Generate attendance reports
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4 mb-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-warning text-white text-center">
+        <i class="fas fa-user-shield me-2"></i>
+        <h5 class="mb-0">Administrators</h5>
+      </div>
+      <div class="card-body">
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Manage rooms and subjects
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Handle student enrollments
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Monitor system statistics
+          </li>
+          <li class="mb-2">
+            <i class="fas fa-check text-success me-2"></i>
+            Export data and reports
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Call to Action -->
+{% if not user.is_authenticated %}
+<div class="row mt-5 pt-5">
+  <div class="col-12">
+    <div class="card bg-primary text-white text-center border-0 shadow-lg">
+      <div class="card-body p-5">
+        <h3 class="mb-3">Ready to Get Started?</h3>
+        <p class="lead mb-4">
+          Join thousands of educational institutions using our attendance
+          scanner system.
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+          <a href="{% url 'register' %}" class="btn btn-light btn-lg">
+            <i class="fas fa-user-plus me-2"></i>
+            Create Account
+          </a>
+          <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i>
+            Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %} {% block extra_css %}
+<style>
+  .min-vh-75 {
+    min-height: 75vh;
+  }
+
+  .hero-content {
+    padding-right: 2rem;
+  }
+
+  .feature-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover .feature-icon {
+    transform: scale(1.1);
+  }
+
+  @media (max-width: 768px) {
+    .hero-content {
+      padding-right: 0;
+      text-align: center;
+    }
+
+    .hero-image {
+      margin-top: 2rem;
+    }
+  }
+</style>
+{% endblock %}

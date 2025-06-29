@@ -1,0 +1,370 @@
+{% extends 'scanner/base.html' %} {% block title %}Register - Attendance
+Scanner{% endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-lg">
+      <div class="card-header text-center">
+        <h4 class="mb-0">
+          <i class="fas fa-user-plus me-2"></i>
+          Create Account
+        </h4>
+      </div>
+      <div class="card-body p-4">
+        <form method="post">
+          {% csrf_token %} {% if form.errors %}
+          <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Please correct the errors below.
+          </div>
+          {% endif %}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label
+                for="{{ form.first_name.id_for_label }}"
+                class="form-label"
+              >
+                <i class="fas fa-user me-2"></i>First Name
+              </label>
+              {{ form.first_name }} {% if form.first_name.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.first_name.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                <i class="fas fa-user me-2"></i>Last Name
+              </label>
+              {{ form.last_name }} {% if form.last_name.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.last_name.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.username.id_for_label }}" class="form-label">
+              <i class="fas fa-at me-2"></i>Username
+            </label>
+            {{ form.username }} {% if form.username.errors %}
+            <div class="text-danger small mt-1">
+              {{ form.username.errors.0 }}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              Choose a unique username for login
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.email.id_for_label }}" class="form-label">
+              <i class="fas fa-envelope me-2"></i>Email Address
+            </label>
+            {{ form.email }} {% if form.email.errors %}
+            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.user_type.id_for_label }}" class="form-label">
+              <i class="fas fa-users me-2"></i>User Type
+            </label>
+            {{ form.user_type }} {% if form.user_type.errors %}
+            <div class="text-danger small mt-1">
+              {{ form.user_type.errors.0 }}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              Select your role in the system
+            </div>
+          </div>
+
+          <!-- Student ID field - only show for students -->
+          <div
+            class="mb-3"
+            id="student-id-field"
+            style="display: none"
+            data-has-errors="{% if form.student_id.errors %}true{% else %}false{% endif %}"
+          >
+            <label for="{{ form.student_id.id_for_label }}" class="form-label">
+              <i class="fas fa-id-card me-2"></i>Student ID
+            </label>
+            {{ form.student_id }} {% if form.student_id.errors %}
+            <div class="text-danger small mt-1">
+              {{ form.student_id.errors.0 }}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              Required for students - your unique student identification number
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.password1.id_for_label }}" class="form-label">
+                <i class="fas fa-lock me-2"></i>Password
+              </label>
+              {{ form.password1 }} {% if form.password1.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.password1.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.password2.id_for_label }}" class="form-label">
+                <i class="fas fa-lock me-2"></i>Confirm Password
+              </label>
+              {{ form.password2 }} {% if form.password2.errors %}
+              <div class="text-danger small mt-1">
+                {{ form.password2.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="{{ form.barcode.id_for_label }}" class="form-label">
+              <i class="fas fa-barcode me-2"></i>Barcode (Optional)
+            </label>
+            {{ form.barcode }} {% if form.barcode.errors %}
+            <div class="text-danger small mt-1">
+              {{ form.barcode.errors.0 }}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              <i class="fas fa-info-circle me-1"></i>
+              Leave blank to auto-generate a barcode
+            </div>
+          </div>
+
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="fas fa-user-plus me-2"></i>
+              Create Account
+            </button>
+          </div>
+        </form>
+
+        <hr class="my-4" />
+
+        <div class="text-center">
+          <p class="text-muted mb-2">Already have an account?</p>
+          <a href="{% url 'login' %}" class="btn btn-outline-primary">
+            <i class="fas fa-sign-in-alt me-2"></i>
+            Sign In
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Type Information -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="fas fa-info-circle me-2"></i>
+              User Type Information
+            </h6>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-user-graduate text-primary me-2"></i>
+                  <strong>Student</strong>
+                </div>
+                <small class="text-muted">
+                  Access to personal schedule, attendance history, and barcode
+                  display
+                </small>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-chalkboard-teacher text-success me-2"></i>
+                  <strong>Professor</strong>
+                </div>
+                <small class="text-muted">
+                  Manage schedules, take attendance, and generate reports
+                </small>
+              </div>
+              <div class="col-md-4">
+                <div class="d-flex align-items-center mb-2">
+                  <i class="fas fa-user-shield text-warning me-2"></i>
+                  <strong>Admin</strong>
+                </div>
+                <small class="text-muted">
+                  Full system access including user and data management
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  // Auto-focus first name field
+  document.addEventListener("DOMContentLoaded", function () {
+    const firstNameField = document.getElementById(
+      "{{ form.first_name.id_for_label }}"
+    );
+    if (firstNameField) {
+      firstNameField.focus();
+    }
+  });
+
+  // Show/hide password functionality
+  document.addEventListener("DOMContentLoaded", function () {
+    const passwordFields = [
+      "{{ form.password1.id_for_label }}",
+      "{{ form.password2.id_for_label }}",
+    ];
+
+    passwordFields.forEach(function (fieldId) {
+      const passwordField = document.getElementById(fieldId);
+      if (passwordField) {
+        // Add show/hide password button
+        const wrapper = document.createElement("div");
+        wrapper.className = "input-group";
+        passwordField.parentNode.insertBefore(wrapper, passwordField);
+        wrapper.appendChild(passwordField);
+
+        const button = document.createElement("button");
+        button.className = "btn btn-outline-secondary";
+        button.type = "button";
+        button.innerHTML = '<i class="fas fa-eye"></i>';
+        wrapper.appendChild(button);
+
+        button.addEventListener("click", function () {
+          const type =
+            passwordField.getAttribute("type") === "password"
+              ? "text"
+              : "password";
+          passwordField.setAttribute("type", type);
+          button.innerHTML =
+            type === "password"
+              ? '<i class="fas fa-eye"></i>'
+              : '<i class="fas fa-eye-slash"></i>';
+        });
+      }
+    });
+  });
+
+  // Password strength indicator
+  document.addEventListener("DOMContentLoaded", function () {
+    const passwordField = document.getElementById(
+      "{{ form.password1.id_for_label }}"
+    );
+    if (passwordField) {
+      passwordField.addEventListener("input", function () {
+        const password = this.value;
+        const strength = checkPasswordStrength(password);
+        updatePasswordStrengthIndicator(strength);
+      });
+    }
+  });
+
+  // Show/hide student ID field based on user type
+  document.addEventListener("DOMContentLoaded", function () {
+    const userTypeField = document.getElementById(
+      "{{ form.user_type.id_for_label }}"
+    );
+    const studentIdField = document.getElementById("student-id-field");
+    const studentIdInput = document.getElementById(
+      "{{ form.student_id.id_for_label }}"
+    );
+
+    function toggleStudentIdField() {
+      if (userTypeField.value === "student") {
+        studentIdField.style.display = "block";
+        if (studentIdInput) {
+          studentIdInput.required = true;
+        }
+      } else {
+        studentIdField.style.display = "none";
+        if (studentIdInput) {
+          studentIdInput.required = false;
+          studentIdInput.value = "";
+        }
+      }
+    }
+
+    // Initial state
+    toggleStudentIdField();
+
+    // Listen for changes
+    if (userTypeField) {
+      userTypeField.addEventListener("change", toggleStudentIdField);
+    }
+
+    // Show field if there are errors for student_id
+    const hasStudentIdErrors =
+      studentIdField.getAttribute("data-has-errors") === "true";
+    if (hasStudentIdErrors) {
+      studentIdField.style.display = "block";
+    }
+  });
+
+  function checkPasswordStrength(password) {
+    let score = 0;
+
+    if (password.length >= 8) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+
+    if (score < 2) return "weak";
+    if (score < 4) return "medium";
+    return "strong";
+  }
+
+  function updatePasswordStrengthIndicator(strength) {
+    let strengthElement = document.getElementById("password-strength");
+    if (!strengthElement) {
+      const passwordField = document.getElementById(
+        "{{ form.password1.id_for_label }}"
+      );
+      if (passwordField) {
+        const wrapper =
+          passwordField.closest(".input-group") || passwordField.parentNode;
+        strengthElement = document.createElement("div");
+        strengthElement.id = "password-strength";
+        strengthElement.className = "mt-2";
+        wrapper.parentNode.insertBefore(strengthElement, wrapper.nextSibling);
+      }
+    }
+
+    if (strengthElement) {
+      const colors = {
+        weak: "danger",
+        medium: "warning",
+        strong: "success",
+      };
+
+      const icons = {
+        weak: "times-circle",
+        medium: "exclamation-circle",
+        strong: "check-circle",
+      };
+
+      strengthElement.innerHTML = `
+                <small class="text-${colors[strength]}">
+                    <i class="fas fa-${icons[strength]} me-1"></i>
+                    Password strength: ${
+                      strength.charAt(0).toUpperCase() + strength.slice(1)
+                    }
+                </small>
+            `;
+    }
+  }
+</script>
+{% endblock %}
