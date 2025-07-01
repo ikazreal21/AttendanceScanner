@@ -39,5 +39,6 @@ urlpatterns = [
     path('manage-enrollments/bulk/', views.bulk_enrollment, name='bulk_enrollment'),
     path('manage-enrollments/bulk-delete/', views.bulk_delete_enrollments, name='bulk_delete_enrollments'),
     path('manage-enrollments/export/', views.export_enrollments, name='export_enrollments'),
+    path('barcode_image/', views.barcode_image, name='barcode_image'),
     # path('student/<int:student_id>/schedule/<int:schedule_id>/attendance/', views.view_student_attendance, name='view_student_attendance'),
 ]

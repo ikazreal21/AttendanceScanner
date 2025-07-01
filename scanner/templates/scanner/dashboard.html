@@ -1,5 +1,5 @@
 {% extends 'scanner/base.html' %} {% block title %}
-Dashboard - Attendance Scanner {%endblock %} {% block content %}
+Dashboard - Attendance Scanner {% endblock %} {% block content %}
 <div class="row">
   <div class="col-12">
     <h2 class="mb-4"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h2>
@@ -55,13 +55,11 @@ Dashboard - Attendance Scanner {%endblock %} {% block content %}
         >
           <div class="card-body">
             <h6 class="card-title">
-              {{ schedule_data.schedule.subject.code }} - {{
-              schedule_data.schedule.subject.name }}
+              {{ schedule_data.schedule.subject.code }} - {{ schedule_data.schedule.subject.name }}
             </h6>
             <p class="card-text">
               <i class="fas fa-clock me-2"></i>
-              {{ schedule_data.schedule.start_time|time:"g:i A" }} - {{
-              schedule_data.schedule.end_time|time:"g:i A" }}
+              {{ schedule_data.schedule.start_time|time:"g:i A" }} - {{ schedule_data.schedule.end_time|time:"g:i A" }}
             </p>
             <p class="card-text">
               <i class="fas fa-map-marker-alt me-2"></i>
@@ -77,11 +75,11 @@ Dashboard - Attendance Scanner {%endblock %} {% block content %}
               class="status-badge status-{{ schedule_data.attendance.status }}"
             >
               {% if schedule_data.attendance.status == 'present' %}
-              <i class="fas fa-check me-1"></i>Present {% elif
-              schedule_data.attendance.status == 'absent' %}
-              <i class="fas fa-times me-1"></i>Absent {% elif
-              schedule_data.attendance.status == 'late' %}
-              <i class="fas fa-clock me-1"></i>Late {% else %}
+                <i class="fas fa-check me-1"></i>Present 
+              {% elif schedule_data.attendance.status == 'absent' %}
+                <i class="fas fa-times me-1"></i>Absent 
+              {% elif schedule_data.attendance.status == 'late' %}
+                <i class="fas fa-clock me-1"></i>Late {% else %}
               <i class="fas fa-exclamation me-1"></i>Excused {% endif %}
             </span>
 
@@ -213,13 +211,11 @@ Dashboard - Attendance Scanner {%endblock %} {% block content %}
         <div class="card h-100">
           <div class="card-body">
             <h6 class="card-title">
-              {{ session_data.schedule.subject.code }} - {{
-              session_data.schedule.subject.name }}
+              {{ session_data.schedule.subject.code }} - {{ session_data.schedule.subject.name }}
             </h6>
             <p class="card-text">
               <i class="fas fa-clock me-2"></i>
-              {{ session_data.schedule.start_time|time:"g:i A" }} - {{
-              session_data.schedule.end_time|time:"g:i A" }}
+              {{ session_data.schedule.start_time|time:"g:i A" }} - {{ session_data.schedule.end_time|time:"g:i A" }}
             </p>
             <p class="card-text">
               <i class="fas fa-map-marker-alt me-2"></i>
@@ -227,8 +223,7 @@ Dashboard - Attendance Scanner {%endblock %} {% block content %}
             </p>
             <p class="card-text">
               <i class="fas fa-users me-2"></i>
-              {{ session_data.attendance_count }}/{{ session_data.total_students
-              }} students present
+              {{ session_data.attendance_count }}/{{ session_data.total_students }} students present
             </p>
 
             <!-- Session Status -->

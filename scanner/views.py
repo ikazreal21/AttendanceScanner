@@ -10,6 +10,9 @@ from django.db.models import Q
 from datetime import datetime, timedelta, date
 import json
 import pytz
+import barcode
+from barcode.writer import ImageWriter
+from io import BytesIO
 
 from .models import User, Room, Subject, Schedule, Enrollment, Attendance, ProfessorSession, BarcodeLog
 from .forms import (
@@ -770,3 +773,13 @@ def export_enrollments(request):
 #         'schedule': schedule,
 #         'attendances': attendances
 #     })
+
+@login_required
+def barcode_image(request):
+    """Serve the user's barcode as an image."""
+    barcode_value = request.user.barcode  # or however you get the barcode
+    barcode_format = barcode.get_barcode_class('code128')
+    buffer = BytesIO()
+    barcode_format(barcode_value, writer=ImageWriter()).write(buffer)
+    buffer.seek(0)
+    return HttpResponse(buffer, content_type='image/png')
