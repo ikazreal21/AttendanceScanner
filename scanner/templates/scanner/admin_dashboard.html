@@ -1,0 +1,310 @@
+{% extends 'scanner/base.html' %} {% block title %}Admin Dashboard - Attendance
+Scanner{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <h2 class="mb-4">
+      <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+    </h2>
+  </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="card bg-primary text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4 class="mb-0">{{ total_users }}</h4>
+            <p class="mb-0">Total Users</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-users fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card bg-success text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4 class="mb-0">{{ total_schedules }}</h4>
+            <p class="mb-0">Total Schedules</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-calendar fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card bg-info text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4 class="mb-0">{{ total_rooms }}</h4>
+            <p class="mb-0">Total Rooms</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-building fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card bg-warning text-white">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h4 class="mb-0">{{ total_subjects }}</h4>
+            <p class="mb-0">Total Subjects</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-book fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3 mb-2">
+            <a
+              href="{% url 'manage_rooms' %}"
+              class="btn btn-outline-primary w-100"
+            >
+              <i class="fas fa-building me-2"></i>Manage Rooms
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a
+              href="{% url 'manage_subjects' %}"
+              class="btn btn-outline-success w-100"
+            >
+              <i class="fas fa-book me-2"></i>Manage Subjects
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a
+              href="{% url 'manage_enrollments' %}"
+              class="btn btn-outline-info w-100"
+            >
+              <i class="fas fa-user-graduate me-2"></i>Manage Enrollments
+            </a>
+          </div>
+          <div class="col-md-3 mb-2">
+            <a
+              href="{% url 'export_enrollments' %}"
+              class="btn btn-outline-warning w-100"
+            >
+              <i class="fas fa-download me-2"></i>Export Enrollments
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Recent Data Tables -->
+<div class="row">
+  <!-- Recent Users -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Recent Users</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users|slice:":5" %}
+              <tr>
+                <td>
+                  <strong>{{ user.get_full_name }}</strong><br />
+                  <small class="text-muted">@{{ user.username }}</small>
+                </td>
+                <td>
+                  <span
+                    class="badge bg-{% if user.user_type == 'admin' %}danger{% elif user.user_type == 'professor' %}primary{% else %}success{% endif %}"
+                  >
+                    {{ user.user_type|title }}
+                  </span>
+                </td>
+                <td>{{ user.email|default:"-" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted">
+                  No users found
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center">
+          <a href="#" class="btn btn-sm btn-outline-primary">View All Users</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Schedules -->
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-calendar me-2"></i>Recent Schedules
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Professor</th>
+                <th>Room</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for schedule in schedules|slice:":5" %}
+              <tr>
+                <td>
+                  <strong>{{ schedule.subject.code }}</strong><br />
+                  <small class="text-muted">{{ schedule.subject.name }}</small>
+                </td>
+                <td>{{ schedule.professor.get_full_name }}</td>
+                <td>{{ schedule.room.name }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted">
+                  No schedules found
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="text-center">
+          <a href="#" class="btn btn-sm btn-outline-primary"
+            >View All Schedules</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- System Information -->
+<div class="row">
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>System Information
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-6">
+            <p><strong>Total Users:</strong> {{ total_users }}</p>
+            <p><strong>Total Schedules:</strong> {{ total_schedules }}</p>
+          </div>
+          <div class="col-6">
+            <p><strong>Total Rooms:</strong> {{ total_rooms }}</p>
+            <p><strong>Total Subjects:</strong> {{ total_subjects }}</p>
+          </div>
+        </div>
+        <hr />
+        <div class="alert alert-info">
+          <small>
+            <i class="fas fa-clock me-2"></i>
+            <strong>Current Time (Manila):</strong>
+            <span id="current-time"></span>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-bar me-2"></i>Quick Statistics
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-6">
+            <h4 class="text-primary">{{ total_users }}</h4>
+            <small class="text-muted">Total Users</small>
+          </div>
+          <div class="col-6">
+            <h4 class="text-success">{{ total_schedules }}</h4>
+            <small class="text-muted">Active Schedules</small>
+          </div>
+        </div>
+        <hr />
+        <div class="row text-center">
+          <div class="col-6">
+            <h4 class="text-info">{{ total_rooms }}</h4>
+            <small class="text-muted">Available Rooms</small>
+          </div>
+          <div class="col-6">
+            <h4 class="text-warning">{{ total_subjects }}</h4>
+            <small class="text-muted">Total Subjects</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Update current time
+  function updateTime() {
+    const now = new Date();
+    const manilaTime = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Manila",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    }).format(now);
+    document.getElementById("current-time").textContent = manilaTime;
+  }
+
+  updateTime();
+  setInterval(updateTime, 1000);
+</script>
+{% endblock %}

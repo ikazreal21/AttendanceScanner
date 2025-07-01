@@ -1,0 +1,111 @@
+{% extends 'scanner/base.html' %} {% block title %}Edit Room - Attendance
+Scanner{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2><i class="fas fa-edit me-2"></i>Edit Room</h2>
+      <a href="{% url 'manage_rooms' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Rooms
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">
+          <i class="fas fa-building me-2"></i>Edit Room: {{ room.name }}
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.name.id_for_label }}" class="form-label"
+                >Room Name</label
+              >
+              {{ form.name }} {% if form.name.errors %}
+              <div class="text-danger small">{{ form.name.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.capacity.id_for_label }}" class="form-label"
+                >Capacity</label
+              >
+              {{ form.capacity }} {% if form.capacity.errors %}
+              <div class="text-danger small">{{ form.capacity.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.building.id_for_label }}" class="form-label"
+                >Building</label
+              >
+              {{ form.building }} {% if form.building.errors %}
+              <div class="text-danger small">{{ form.building.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label for="{{ form.floor.id_for_label }}" class="form-label"
+                >Floor</label
+              >
+              {{ form.floor }} {% if form.floor.errors %}
+              <div class="text-danger small">{{ form.floor.errors.0 }}</div>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+            {% for error in form.non_field_errors %} {{ error }} {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a
+              href="{% url 'manage_rooms' %}"
+              class="btn btn-secondary me-md-2"
+            >
+              <i class="fas fa-times me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-2"></i>Update Room
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Current Room Info -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>Current Room Information
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>Room Name:</strong> {{ room.name }}</p>
+            <p>
+              <strong>Building:</strong> {{ room.building|default:"Not specified" }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Floor:</strong> {{ room.floor }}</p>
+            <p><strong>Capacity:</strong> {{ room.capacity }} students</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

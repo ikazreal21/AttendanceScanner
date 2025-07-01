@@ -3,6 +3,14 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import datetime, timedelta
 import uuid
+import pytz
+
+# Manila timezone
+MANILA_TZ = pytz.timezone('Asia/Manila')
+
+def get_manila_now():
+    """Get current time in Manila timezone"""
+    return timezone.now().astimezone(MANILA_TZ)
 
 class User(AbstractUser):
     """Custom User model with role-based access"""
@@ -155,7 +163,8 @@ class ProfessorSession(models.Model):
         """Check if professor can time out (15-minute interval)"""
         if not self.time_in:
             return False
-        time_since_time_in = timezone.now() - self.time_in
+        current_time = get_manila_now()
+        time_since_time_in = current_time - self.time_in
         return time_since_time_in >= timedelta(minutes=15)
 
 class BarcodeLog(models.Model):

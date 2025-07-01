@@ -140,20 +140,12 @@ Attendance Scanner{% endblock %} {% block content %}
                 <td>
                   {{ enrollment.schedule.get_day_of_week_display }}<br />
                   <small class="text-muted">
-                    {{ enrollment.schedule.start_time|time:"g:i A" }} - {{
-                    enrollment.schedule.end_time|time:"g:i A" }}
+                    {{ enrollment.schedule.start_time|time:"g:i A" }} - {{ enrollment.schedule.end_time|time:"g:i A" }}
                   </small>
                 </td>
                 <td>{{ enrollment.enrolled_at|date:"M d, Y" }}</td>
                 <td>
                   <div class="btn-group" role="group">
-                    <a
-                      href="{% url 'view_student_attendance' enrollment.student.id enrollment.schedule.id %}"
-                      class="btn btn-sm btn-outline-info"
-                      title="View Attendance"
-                    >
-                      <i class="fas fa-eye"></i>
-                    </a>
                     <a
                       href="{% url 'delete_enrollment' enrollment.id %}"
                       class="btn btn-sm btn-outline-danger"

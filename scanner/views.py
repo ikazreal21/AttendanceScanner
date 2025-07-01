@@ -9,12 +9,28 @@ from django.utils import timezone
 from django.db.models import Q
 from datetime import datetime, timedelta, date
 import json
+import pytz
 
 from .models import User, Room, Subject, Schedule, Enrollment, Attendance, ProfessorSession, BarcodeLog
 from .forms import (
     CustomUserCreationForm, CustomAuthenticationForm, RoomForm, SubjectForm, 
     ScheduleForm, EnrollmentForm, AttendanceForm, BarcodeScanForm, ProfessorSessionForm
 )
+
+# Manila timezone
+MANILA_TZ = pytz.timezone('Asia/Manila')
+
+def get_manila_now():
+    """Get current time in Manila timezone"""
+    return timezone.now().astimezone(MANILA_TZ)
+
+def get_manila_today():
+    """Get current date in Manila timezone"""
+    return get_manila_now().date()
+
+def get_manila_time():
+    """Get current time (time only) in Manila timezone"""
+    return get_manila_now().time()
 
 def is_professor(user):
     return user.is_authenticated and user.user_type == 'professor'
@@ -78,8 +94,8 @@ def user_logout(request):
 @login_required
 def dashboard(request):
     """Main dashboard based on user type"""
-    today = date.today()
-    current_time = timezone.now().time()
+    today = get_manila_today()
+    current_time = get_manila_time()
     
     if request.user.user_type == 'student':
         # Get student's schedules for today
@@ -221,12 +237,12 @@ def delete_schedule(request, schedule_id):
 def attendance_management(request, schedule_id):
     """Professor's attendance management for a specific schedule"""
     schedule = get_object_or_404(Schedule, id=schedule_id, professor=request.user)
-    date_filter = request.GET.get('date', date.today().isoformat())
+    date_filter = request.GET.get('date', get_manila_today().isoformat())
     
     try:
         selected_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
     except ValueError:
-        selected_date = date.today()
+        selected_date = get_manila_today()
     
     # Get or create professor session
     session, created = ProfessorSession.objects.get_or_create(
@@ -276,7 +292,7 @@ def attendance_management(request, schedule_id):
 def barcode_scanner(request, schedule_id):
     """Barcode scanner interface for professors"""
     schedule = get_object_or_404(Schedule, id=schedule_id, professor=request.user)
-    today = date.today()
+    today = get_manila_today()
     
     # Get or create professor session
     session, created = ProfessorSession.objects.get_or_create(
@@ -335,13 +351,14 @@ def process_barcode_scan(request, barcode, schedule, session):
             log_entry.save()
             return JsonResponse({'success': False, 'message': 'Student not enrolled in this class'})
         
-        today = date.today()
+        today = get_manila_today()
+        current_time = get_manila_now()
         
         if user.user_type == 'professor':
             # Professor time-in/out logic
             if not session.time_in:
                 # Professor time-in
-                session.time_in = timezone.now()
+                session.time_in = current_time
                 session.is_active = True
                 session.save()
                 log_entry.success = True
@@ -355,7 +372,7 @@ def process_barcode_scan(request, barcode, schedule, session):
             elif session.time_in and not session.time_out:
                 # Check if 15 minutes have passed
                 if session.can_professor_time_out():
-                    session.time_out = timezone.now()
+                    session.time_out = current_time
                     session.is_active = False
                     session.save()
                     
@@ -367,7 +384,7 @@ def process_barcode_scan(request, barcode, schedule, session):
                         time_out__isnull=True
                     )
                     for attendance in attendances:
-                        attendance.time_out = timezone.now()
+                        attendance.time_out = current_time
                         attendance.save()
                     
                     log_entry.success = True
@@ -422,7 +439,7 @@ def process_barcode_scan(request, barcode, schedule, session):
             
             if not attendance.time_in:
                 # Student time-in
-                attendance.time_in = timezone.now()
+                attendance.time_in = current_time
                 attendance.status = 'present'
                 attendance.save()
                 log_entry.success = True
@@ -435,7 +452,7 @@ def process_barcode_scan(request, barcode, schedule, session):
                 })
             elif attendance.time_in and not attendance.time_out:
                 # Student time-out
-                attendance.time_out = timezone.now()
+                attendance.time_out = current_time
                 attendance.save()
                 log_entry.success = True
                 log_entry.message = f'Student {user.get_full_name()} time-out successful'
@@ -584,12 +601,12 @@ def toggle_session(request, schedule_id):
     """Toggle professor session on/off"""
     schedule = get_object_or_404(Schedule, id=schedule_id, professor=request.user)
     action = request.POST.get('action')
-    selected_date = request.POST.get('date', date.today().isoformat())
+    selected_date = request.POST.get('date', get_manila_today().isoformat())
     
     try:
         selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
     except ValueError:
-        selected_date = date.today()
+        selected_date = get_manila_today()
     
     session, created = ProfessorSession.objects.get_or_create(
         professor=request.user,
@@ -598,14 +615,16 @@ def toggle_session(request, schedule_id):
         defaults={'is_active': False}
     )
     
+    current_time = get_manila_now()
+    
     if action == 'start':
         session.is_active = True
-        session.time_in = timezone.now()
+        session.time_in = current_time
         session.save()
         messages.success(request, 'Session started successfully!')
     elif action == 'stop':
         session.is_active = False
-        session.time_out = timezone.now()
+        session.time_out = current_time
         session.save()
         messages.success(request, 'Session stopped successfully!')
     
@@ -734,20 +753,20 @@ def export_enrollments(request):
     
     return response
 
-@login_required
-@user_passes_test(is_admin)
-def view_student_attendance(request, student_id, schedule_id):
-    """View specific student attendance for a schedule"""
-    student = get_object_or_404(User, id=student_id, user_type='student')
-    schedule = get_object_or_404(Schedule, id=schedule_id)
+# @login_required
+# @user_passes_test(is_admin)
+# def view_student_attendance(request, student_id, schedule_id):
+#     """View specific student attendance for a schedule"""
+#     student = get_object_or_404(User, id=student_id, user_type='student')
+#     schedule = get_object_or_404(Schedule, id=schedule_id)
     
-    attendances = Attendance.objects.filter(
-        student=student,
-        schedule=schedule
-    ).order_by('-date')
+#     attendances = Attendance.objects.filter(
+#         student=student,
+#         schedule=schedule
+#     ).order_by('-date')
     
-    return render(request, 'scanner/view_student_attendance.html', {
-        'student': student,
-        'schedule': schedule,
-        'attendances': attendances
-    })
+#     return render(request, 'scanner/view_student_attendance.html', {
+#         'student': student,
+#         'schedule': schedule,
+#         'attendances': attendances
+#     })
