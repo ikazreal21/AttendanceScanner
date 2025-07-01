@@ -3,6 +3,7 @@ import sys
 import django
 from django.core.wsgi import get_wsgi_application
 from wsgiref.simple_server import make_server
+import webbrowser
 
 if __name__ == "__main__":
     # Set the Django settings module
@@ -25,6 +26,7 @@ if __name__ == "__main__":
     try:
         with make_server('0.0.0.0', 8000, application) as httpd:
             print("Server running on http://0.0.0.0:8000")
+            webbrowser.open('http://localhost:8000')
             httpd.serve_forever()
     except KeyboardInterrupt:
         print("\nServer stopped.")
